@@ -1,0 +1,2 @@
+# Creating an Interpreter in Go:<br>
+This is my work in following the book "Writing an Interpreter in Go", written by Thorsten Bell in using the Go language to construct an interpreter from scratch.<br>
