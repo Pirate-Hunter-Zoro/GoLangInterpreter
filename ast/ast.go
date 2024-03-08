@@ -124,4 +124,15 @@ type PrefixExpression struct {
 	Operator 	string
 	Right 		Expression // Who KNOWS what that will be - hence a recursive parsing call eventually
 }
-// TODO - the three Expression methods
+func (pe *PrefixExpression) expressionNode()		{}
+func (pe *PrefixExpression) TokenLiteral() string 	{ return pe.Token.Literal }
+func (pe *PrefixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(pe.Operator)
+	out.WriteString(pe.Right.String()) // The expression to the right could be any kind of expression, but it will know how to represent itself as a string
+	out.WriteString(")")
+
+	return out.String()
+}
