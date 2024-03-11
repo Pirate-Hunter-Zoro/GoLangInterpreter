@@ -126,6 +126,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 }
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	// This becomes the root of our tree, and we were given the left subtree
 	expression := &ast.InfixExpression{
 		Token: p.curToken,
 		Operator: p.curToken.Literal,
@@ -134,6 +135,8 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 
 	precedence := p.curPrecedence()
 	p.NextToken()
+	// Now the right subtree is a whole new expression
+
 	expression.Right = p.parseExpression(precedence)
 
 	return expression
@@ -203,6 +206,9 @@ func (p *Parser) noPrefixParseFnError(t token.TokenType) {
 
 // How do we parse a general expression
 func (p *Parser) parseExpression(precedence int) ast.Expression {
+	// This precedence stands for the current "right-binding power" of the current parseExpression invocation
+	// The higher this precedence, the more tokens/operators/operands to the right of the current expression we can bind to the current invocation
+
 	// Grab the function from our map
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
@@ -210,10 +216,13 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 		p.noPrefixParseFnError(p.curToken.Type)
 		return nil
 	}
-	// Apply the function to get its value
+	// Apply the function to get its value - the left subtree
 	leftExp := prefix()
 
+	// Once this while loop ends, we either ran out of tokens to parse, or the next operation is of equal precedence to our input precedence
+	// In the case of the next precedence not being greater, we always go left to right, so evaluate this left subtree of greater than or equal precedence to the upcoming precedence first
 	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
+		// If p.peekPrecedence is high, then that invocation can bind a lot of left-sided terms to it
 		infix := p.infixParseFns[p.peekToken.Type]
 		if infix == nil {
 			return leftExp
@@ -223,7 +232,9 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 		leftExp = infix(leftExp)
 	}
+	// That preceding for loop just shoved expressions of higher precedence farther down the expression tree
 
+	// Ultimately, expressions involving higher precedence operators should be deeper in the tree than expressions with lower precedence operators
 	return leftExp
 }
 
