@@ -111,6 +111,8 @@ func (p *Parser) parseIdentifier() ast.Expression {
 }
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
+	defer untrace(trace("parsePrefixExpression"))
+
 	expression := &ast.PrefixExpression{
 		Token: p.curToken,
 		Operator: p.curToken.Literal,
@@ -126,6 +128,8 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 }
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	defer untrace(trace("parseInfixExpression"))
+
 	// This becomes the root of our tree, and we were given the left subtree
 	expression := &ast.InfixExpression{
 		Token: p.curToken,
@@ -188,6 +192,8 @@ func (p *Parser) parseStatement() ast.Statement {
 
 // So how do we parse expression statements?
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	defer untrace(trace("parseExpressionStatement"))
+
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 
 	stmt.Expression = p.parseExpression(LOWEST)
@@ -206,6 +212,8 @@ func (p *Parser) noPrefixParseFnError(t token.TokenType) {
 
 // How do we parse a general expression
 func (p *Parser) parseExpression(precedence int) ast.Expression {
+	defer untrace(trace("parseExpression"))
+
 	// This precedence stands for the current "right-binding power" of the current parseExpression invocation
 	// The higher this precedence, the more tokens/operators/operands to the right of the current expression we can bind to the current invocation
 
@@ -279,6 +287,8 @@ func (p *Parser) parseLetStatement() ast.Statement {
 
 // How do we parse and integer literal?
 func (p *Parser) parseIntegerLiteral() ast.Expression {
+	defer untrace(trace("parseIntegerLiteral"))
+
 	lit := &ast.IntegerLiteral{Token: p.curToken}
 
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
